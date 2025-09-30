@@ -3,8 +3,7 @@
 import { ChevronUp } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import type { User } from "next-auth";
-import { signOut, useSession } from "next-auth/react";
+import { useUser } from "@civic/auth/react";
 import { useTheme } from "next-themes";
 import {
   DropdownMenu,
@@ -18,23 +17,28 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { guestRegex } from "@/lib/constants";
 import { LoaderIcon } from "./icons";
 import { toast } from "./toast";
 
-export function SidebarUserNav({ user }: { user: User }) {
+type User = {
+  id?: string;
+  email?: string | null;
+  name?: string | null;
+};
+
+export function SidebarUserNav({ user: initialUser }: { user: User | undefined }) {
   const router = useRouter();
-  const { data, status } = useSession();
+  const { user, signOut, isLoading } = useUser();
   const { setTheme, resolvedTheme } = useTheme();
 
-  const isGuest = guestRegex.test(data?.user?.email ?? "");
+  const currentUser = user || initialUser;
 
   return (
     <SidebarMenu>
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            {status === "loading" ? (
+            {isLoading ? (
               <SidebarMenuButton className="h-10 justify-between bg-background data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
                 <div className="flex flex-row gap-2">
                   <div className="size-6 animate-pulse rounded-full bg-zinc-500/30" />
@@ -52,14 +56,14 @@ export function SidebarUserNav({ user }: { user: User }) {
                 data-testid="user-nav-button"
               >
                 <Image
-                  alt={user.email ?? "User Avatar"}
+                  alt={currentUser?.email ?? "User Avatar"}
                   className="rounded-full"
                   height={24}
-                  src={`https://avatar.vercel.sh/${user.email}`}
+                  src={`https://avatar.vercel.sh/${currentUser?.email}`}
                   width={24}
                 />
                 <span className="truncate" data-testid="user-email">
-                  {isGuest ? "Guest" : user?.email}
+                  {currentUser?.email}
                 </span>
                 <ChevronUp className="ml-auto" />
               </SidebarMenuButton>
@@ -84,7 +88,7 @@ export function SidebarUserNav({ user }: { user: User }) {
               <button
                 className="w-full cursor-pointer"
                 onClick={() => {
-                  if (status === "loading") {
+                  if (isLoading) {
                     toast({
                       type: "error",
                       description:
@@ -94,17 +98,11 @@ export function SidebarUserNav({ user }: { user: User }) {
                     return;
                   }
 
-                  if (isGuest) {
-                    router.push("/login");
-                  } else {
-                    signOut({
-                      redirectTo: "/",
-                    });
-                  }
+                  signOut();
                 }}
                 type="button"
               >
-                {isGuest ? "Login to your account" : "Sign out"}
+                Sign out
               </button>
             </DropdownMenuItem>
           </DropdownMenuContent>
