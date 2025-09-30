@@ -1,5 +1,4 @@
 import type { UIMessageStreamWriter } from "ai";
-import type { Session } from "next-auth";
 import { codeDocumentHandler } from "@/artifacts/code/server";
 import { sheetDocumentHandler } from "@/artifacts/sheet/server";
 import { textDocumentHandler } from "@/artifacts/text/server";
@@ -7,6 +6,12 @@ import type { ArtifactKind } from "@/components/artifact";
 import { saveDocument } from "../db/queries";
 import type { Document } from "../db/schema";
 import type { ChatMessage } from "../types";
+
+type User = {
+  id?: string;
+  email?: string | null;
+  name?: string | null;
+};
 
 export type SaveDocumentProps = {
   id: string;
@@ -20,14 +25,14 @@ export type CreateDocumentCallbackProps = {
   id: string;
   title: string;
   dataStream: UIMessageStreamWriter<ChatMessage>;
-  session: Session;
+  user: User;
 };
 
 export type UpdateDocumentCallbackProps = {
   document: Document;
   description: string;
   dataStream: UIMessageStreamWriter<ChatMessage>;
-  session: Session;
+  user: User;
 };
 
 export type DocumentHandler<T = ArtifactKind> = {
@@ -38,8 +43,8 @@ export type DocumentHandler<T = ArtifactKind> = {
 
 export function createDocumentHandler<T extends ArtifactKind>(config: {
   kind: T;
-  onCreateDocument: (params: CreateDocumentCallbackProps) => Promise<string>;
-  onUpdateDocument: (params: UpdateDocumentCallbackProps) => Promise<string>;
+  onCreateDocument: (params: Omit<CreateDocumentCallbackProps, "user">) => Promise<string>;
+  onUpdateDocument: (params: Omit<UpdateDocumentCallbackProps, "user">) => Promise<string>;
 }): DocumentHandler<T> {
   return {
     kind: config.kind,
@@ -48,16 +53,15 @@ export function createDocumentHandler<T extends ArtifactKind>(config: {
         id: args.id,
         title: args.title,
         dataStream: args.dataStream,
-        session: args.session,
       });
 
-      if (args.session?.user?.id) {
+      if (args.user?.id) {
         await saveDocument({
           id: args.id,
           title: args.title,
           content: draftContent,
           kind: config.kind,
-          userId: args.session.user.id,
+          userId: args.user.id,
         });
       }
 
@@ -68,16 +72,15 @@ export function createDocumentHandler<T extends ArtifactKind>(config: {
         document: args.document,
         description: args.description,
         dataStream: args.dataStream,
-        session: args.session,
       });
 
-      if (args.session?.user?.id) {
+      if (args.user?.id) {
         await saveDocument({
           id: args.document.id,
           title: args.document.title,
           content: draftContent,
           kind: config.kind,
-          userId: args.session.user.id,
+          userId: args.user.id,
         });
       }
 

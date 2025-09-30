@@ -53,13 +53,37 @@ export async function getUser(email: string): Promise<User[]> {
   }
 }
 
-export async function createUser(email: string, password: string) {
-  const hashedPassword = generateHashedPassword(password);
+export async function createUser(email: string, password?: string) {
+  const hashedPassword = password ? generateHashedPassword(password) : null;
 
   try {
     return await db.insert(user).values({ email, password: hashedPassword });
   } catch (_error) {
     throw new ChatSDKError("bad_request:database", "Failed to create user");
+  }
+}
+
+export async function getUserById(id: string): Promise<User | null> {
+  try {
+    const [result] = await db.select().from(user).where(eq(user.id, id));
+    return result || null;
+  } catch (_error) {
+    throw new ChatSDKError(
+      "bad_request:database",
+      "Failed to get user by id"
+    );
+  }
+}
+
+export async function ensureUserExists(userId: string, email: string) {
+  try {
+    const existingUser = await getUserById(userId);
+
+    if (!existingUser) {
+      await db.insert(user).values({ id: userId, email, password: null });
+    }
+  } catch (_error) {
+    throw new ChatSDKError("bad_request:database", "Failed to ensure user exists");
   }
 }
 
@@ -100,6 +124,7 @@ export async function saveChat({
       visibility,
     });
   } catch (_error) {
+      console.log(_error);
     throw new ChatSDKError("bad_request:database", "Failed to save chat");
   }
 }

@@ -31,8 +31,12 @@
 - Data Persistence
   - [Neon Serverless Postgres](https://vercel.com/marketplace/neon) for saving chat history and user data
   - [Vercel Blob](https://vercel.com/storage/blob) for efficient file storage
-- [Auth.js](https://authjs.dev)
-  - Simple and secure authentication
+- [Civic Auth](https://auth.civic.com)
+  - Simple and secure authentication with Civic Auth
+  - Get your Client ID from [auth.civic.com](https://auth.civic.com)
+- [Nexus](https://civic.com/nexus)
+  - AI agent tools and capabilities powered by Nexus
+  - Access the Nexus app at [nexus.civic.com](https://nexus.civic.com)
 
 ## Model Providers
 
