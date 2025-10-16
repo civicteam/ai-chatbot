@@ -4,7 +4,6 @@ import { experimental_createMCPClient as createMCPClient } from "ai";
 
 export const getNexusTools = async () => {
     const { accessToken } = (await getTokens()) ?? {};
-    console.log("Access Token:", accessToken);
     if (!accessToken) {
         throw new Error("No access token available for MCP client");
     }

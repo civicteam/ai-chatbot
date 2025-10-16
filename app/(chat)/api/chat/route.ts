@@ -186,13 +186,7 @@ export async function POST(request: Request) {
           stopWhen: stepCountIs(25),
           experimental_transform: smoothStream({ chunking: "word" }),
           tools: {
-            ...nexusTools,
-            createDocument: createDocument({ user, dataStream }),
-            updateDocument: updateDocument({ user, dataStream }),
-            requestSuggestions: requestSuggestions({
-              user,
-              dataStream,
-            }),
+            ...nexusTools
           },
           experimental_telemetry: {
             isEnabled: isProductionEnvironment,
