@@ -21,6 +21,7 @@ export default withCivicAuth(otherMiddleware);
 
 export const config = {
   matcher: [
+    "/",
     /*
      * Match all request paths except:
      * - _next directory (Next.js static files)

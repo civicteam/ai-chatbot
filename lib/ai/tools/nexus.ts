@@ -19,9 +19,5 @@ export const getNexusTools = async () => {
     );
 
     const mcpClient = await createMCPClient({ transport });
-    console.log("Created MCP client:", mcpClient);
-    const tools = await mcpClient.tools();
-
-    console.log("Fetched tools from Nexus:", tools);
-    return tools;
+    return mcpClient.tools();
 }

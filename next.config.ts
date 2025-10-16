@@ -16,6 +16,8 @@ const nextConfig: NextConfig = {
 
 const withCivicAuth = createCivicAuthPlugin({
   clientId: process.env.CIVIC_AUTH_CLIENT_ID!,
+  include: ["/*"],
+  exclude: ["/api/auth/*"],
 });
 
 export default withCivicAuth(nextConfig);
