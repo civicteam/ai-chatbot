@@ -5,6 +5,17 @@ import {
   wrapLanguageModel,
 } from "ai";
 import { isTestEnvironment } from "../constants";
+import { anthropic } from "@ai-sdk/anthropic";
+
+const chatModel = process.env.ANTHROPIC_API_KEY ?
+    anthropic("claude-sonnet-4-5")
+    :
+    gateway.languageModel("anthropic/claude-sonnet-4")
+
+const titleModel = process.env.ANTHROPIC_API_KEY ?
+    anthropic("claude-3-5-haiku-latest")
+    :
+    gateway.languageModel("openai/gpt-4o-mini")
 
 export const myProvider = isTestEnvironment
   ? (() => {
@@ -25,12 +36,12 @@ export const myProvider = isTestEnvironment
     })()
   : customProvider({
       languageModels: {
-        "chat-model": gateway.languageModel("anthropic/claude-sonnet-4"),
+        "chat-model": chatModel,
         "chat-model-reasoning": wrapLanguageModel({
-          model: gateway.languageModel("anthropic/claude-sonnet-4"),
+          model: chatModel,
           middleware: extractReasoningMiddleware({ tagName: "think" }),
         }),
-        "title-model": gateway.languageModel("openai/gpt-4o-mini"),
-        "artifact-model": gateway.languageModel("openai/gpt-4o-mini"),
+        "title-model": titleModel,
+        "artifact-model": titleModel,
       },
     });
